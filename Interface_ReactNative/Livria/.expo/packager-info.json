@@ -1,10 +1,10 @@
 {
   "devToolsPort": 19002,
   "expoServerPort": 19000,
-  "packagerPort": null,
-  "packagerPid": null,
+  "packagerPort": 19001,
+  "packagerPid": 18792,
   "expoServerNgrokUrl": "https://3a-ite.anonymous.livria.exp.direct",
   "packagerNgrokUrl": "https://packager.3a-ite.anonymous.livria.exp.direct",
-  "ngrokPid": 10088,
+  "ngrokPid": 18859,
   "webpackServerPort": null
 }

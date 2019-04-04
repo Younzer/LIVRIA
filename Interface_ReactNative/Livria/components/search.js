@@ -1,8 +1,9 @@
 // components/search.js
 
 import books from '../helpers/bookData'
+import BookItem from './bookItem'
 import React from "react";
-import { StyleSheet, View, TextInput, Button, Flatlist } from "react-native";
+import { StyleSheet, View, TextInput, Button, FlatList, Text } from "react-native";
 
 class Search extends React.Component {
   render() {
@@ -10,13 +11,13 @@ class Search extends React.Component {
       <View style={styles.main_container}>
         <TextInput style={styles.textinput} placeholder="Titre du film" />
         <Button title="rechercher" onPress={() => {}} />
-        <Flatlist
+        <FlatList
           data={books}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <Text>{item.title}</Text>}
+          renderItem={({item}) => <BookItem/>}
         />
       </View>
-    );
+    )
   }
 }
 
