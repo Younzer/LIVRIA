@@ -1,9 +1,9 @@
 // components/search.js
 
-import books from '../helpers/bookData'
-import BookItem from './bookItem'
+import books from "../helpers/bookData";
+import BookItem from "./bookItem";
 import React from "react";
-import { StyleSheet, View, TextInput, Button, FlatList, Text } from "react-native";
+import { StyleSheet, View, TextInput, Button, FlatList } from "react-native";
 
 class Search extends React.Component {
   render() {
@@ -13,11 +13,11 @@ class Search extends React.Component {
         <Button title="rechercher" onPress={() => {}} />
         <FlatList
           data={books}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({item}) => <BookItem/>}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => <BookItem book={item} />}
         />
       </View>
-    )
+    );
   }
 }
 
