@@ -74,6 +74,7 @@ LogReg_pipeline = Pipeline([
                 ('clf', OneVsRestClassifier(LogisticRegression(solver='sag'), n_jobs=-1)),
             ])
 
+
 # FONCTIONS
 
 # Pour la sélection des critères  
@@ -127,6 +128,7 @@ class Livria:
         self.car_input=self.car_input.sort_index(axis=1)
         
     def predict (self):
+        self.themes_output = pd.DataFrame([np.zeros((14), dtype=int)], columns=themes_name)
         themes = list(dataTheme.columns.values)
         for theme in themes :
             print('**Calculs des prédictions pour {}...**'.format(theme))
@@ -137,4 +139,8 @@ class Livria:
             # calculating test accuracy
             prediction = LogReg_pipeline.predict(self.car_input)
             self.themes_output[theme]=prediction
-            print(prediction)
+            print(prediction)        
+        return self.themes_output
+    
+    def rename (self):
+        self.themes_output = self.themes_output.rename({'ArtsCulture':'art', 'BdComics':'comics', 'DocMedia':'movies', 'Erotisme':'erotica','Esoterisme':'mystery', 'HistGeo':'historical','Jeunesse':'childhood', 'LittEtrangere':'literature', 'LoisirVie':'travel', 'Philosophie':'philosophy', 'RomanFiction':'fiction','SHS':'sociology', 'SanteBE':'personal-development', 'ScienceTechnique':'science'}, axis='columns')
