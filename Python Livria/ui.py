@@ -16,6 +16,7 @@ ratings = pd.read_csv('data/ratings.csv')
 books = pd.read_csv('data/books.csv')
 tags = pd.read_csv('data/tags.csv')
 btags = pd.read_csv('data/book_tags.csv')
+livres = pd.read_csv('data/df_bt.csv', sep='\t')
 
 # Données pour la prédiction des thèmes
 dataCrit = pd.read_csv('data/df_entree.csv', sep='\t')
@@ -24,9 +25,17 @@ dataTheme = pd.read_csv('data/df_sortie.csv', sep='\t')
 # On supprime la colonne inutile :
 del dataTheme['Unnamed: 0']
 del dataCrit['Unnamed: 0']
+del livres['Unnamed: 0']
 
 # Idem pour les livres on garde que ce dont on a besoin
-books = books.drop(['goodreads_book_id','best_book_id', 'work_id','books_count','isbn','isbn13','title','language_code','work_ratings_count','work_text_reviews_count','ratings_count','ratings_1','ratings_2','ratings_3','ratings_4','ratings_5','image_url'], axis=1)
+books = books.drop(['goodreads_book_id','best_book_id', 'work_id','books_count','isbn','isbn13','title','language_code','work_ratings_count','work_text_reviews_count','ratings_count','ratings_1','ratings_2','ratings_3','ratings_4','ratings_5','small_image_url'], axis=1)
+
+# livres, c'est le df enregistré depuis le notebook dataVizualisation&Cleaning_GoodBooks10k
+livres = livres.drop(['average_rating','ratings_count','tag_id','count','title_y'], axis=1)
+# Une fois nettoyé des données dont nous n'avons pas besoin, on peut le fusionner avec books pour avoir un dataFrame avec toutes les infos dont nous avons besoin, y compris des thèmes des livres
+livres = pd.merge(left=livres, right=books, on="book_id")
+
+
 
 # On définit les critères d'entrée et les thèmes de sortie
 themes_name = dataTheme.columns
@@ -56,7 +65,7 @@ attentes =['Voyage','FacileLire','Reflechir','Connaissance','Personnage','Tout',
 
 s_sexe = wg.RadioButtons(options=['Homme', 'Femme'], description='Renseignez votre sexe')#,style=style)
 s_pers = wg.SelectMultiple(options=personnalite, description='Sélectionnez les items qui vous définissent le mieux',disabled=False)#, style=style) 
-s_passe_t = wg.SelectMultiple(options=passe_temps, description='Quels sont vos passe-temps ?', disabled=False)#, style=style)
+s_passe_t = wg.SelectMultiple(options=passe_temps, description='Quels sont vos passe-temps favoris ?', disabled=False)#, style=style)
 s_attentes = wg.SelectMultiple(options=attentes, description="Qu'est ce qui vous plaît dans un livre ?")#, style=style, disabled=False)
 
 # On créer un set regroupant critères d'entrées et thèmes à prédire
@@ -86,8 +95,8 @@ def display_quest():
 def show_books(books):    
     print('                   Liste des livres qui pourraient vous plaire\n               ===================================================\n')
     for row in books.itertuples():
-        print('{} de {} ({}).     Note moyenne: {}/5'.format(str(row[4]),str(row[2]),int(row[3]),str(row[5])))
-        display(Image(url= str(row[6]), width=100, height=100))       
+        print('{} de {} ({}).     Note moyenne: {}/5'.format(str(row[5]),str(row[3]),int(row[4]),str(row[6])))
+        display(Image(url= str(row[7]), width=100, height=100))       
         
         
 
@@ -144,3 +153,7 @@ class Livria:
     
     def rename (self):
         self.themes_output = self.themes_output.rename({'ArtsCulture':'art', 'BdComics':'comics', 'DocMedia':'movies', 'Erotisme':'erotica','Esoterisme':'mystery', 'HistGeo':'historical','Jeunesse':'childhood', 'LittEtrangere':'literature', 'LoisirVie':'travel', 'Philosophie':'philosophy', 'RomanFiction':'fiction','SHS':'sociology', 'SanteBE':'personal-development', 'ScienceTechnique':'science'}, axis='columns')
+    
+    def list_themes (self):
+        self.themes_output = self.themes_output.columns[self.themes_output.isin([1]).all()]
+        self.themes_output = self.themes_output.tolist()
