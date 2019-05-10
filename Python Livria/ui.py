@@ -35,7 +35,7 @@ livres = livres.drop(['average_rating','ratings_count','tag_id','count','title_y
 # Une fois nettoyé des données dont nous n'avons pas besoin, on peut le fusionner avec books pour avoir un dataFrame avec toutes les infos dont nous avons besoin, y compris des thèmes des livres
 livres = pd.merge(left=livres, right=books, on="book_id")
 
-
+livres['original_publication_year'].fillna(0, inplace=True)
 
 # On définit les critères d'entrée et les thèmes de sortie
 themes_name = dataTheme.columns
@@ -67,6 +67,13 @@ s_sexe = wg.RadioButtons(options=['Homme', 'Femme'], description='Renseignez vot
 s_pers = wg.SelectMultiple(options=personnalite, description='Sélectionnez les items qui vous définissent le mieux',disabled=False)#, style=style) 
 s_passe_t = wg.SelectMultiple(options=passe_temps, description='Quels sont vos passe-temps favoris ?', disabled=False)#, style=style)
 s_attentes = wg.SelectMultiple(options=attentes, description="Qu'est ce qui vous plaît dans un livre ?")#, style=style, disabled=False)
+button = wg.Button(
+    description='Fini !',
+    disabled=False,
+    button_style='info', # 'success', 'info', 'warning', 'danger' or ''
+    tooltip='Fini',
+    icon='check'
+)
 
 # On créer un set regroupant critères d'entrées et thèmes à prédire
 df_entier = pd.concat([dataCrit,dataTheme], axis=1)
@@ -88,18 +95,16 @@ LogReg_pipeline = Pipeline([
 
 # Pour la sélection des critères  
 def display_quest():    
-    display(s_sexe, s_pers, s_passe_t, s_attentes)
-    
-    
-# Fonction pour afficher les livres
-def show_books(books):    
-    print('                   Liste des livres qui pourraient vous plaire\n               ===================================================\n')
-    for row in books.itertuples():
-        print('{} de {} ({}).     Note moyenne: {}/5'.format(str(row[5]),str(row[3]),int(row[4]),str(row[6])))
-        display(Image(url= str(row[7]), width=100, height=100))       
+    display(s_sexe, s_pers, s_passe_t, s_attentes, button)       
         
-        
-
+def on_button_clicked(b):
+    livria = Livria()
+    livria.enr_crits(s_sexe.value, s_pers.value, s_passe_t.value, s_attentes.value)
+    livria.predict()
+    livria.rename()
+    livria.list_themes()
+    livria.show_books()
+button.on_click(on_button_clicked)
 
 # On instancie une classe qu'on nomme Livria. Cela va nous permettre de travailler sur des variables sans nous soucier de la réexécution de ce script.
 
@@ -157,3 +162,12 @@ class Livria:
     def list_themes (self):
         self.themes_output = self.themes_output.columns[self.themes_output.isin([1]).all()]
         self.themes_output = self.themes_output.tolist()
+        
+    # Fonction pour afficher les livres
+    def show_books(self):   
+        livresMontres = livres.loc[livres['tag_name'].isin(self.themes_output)]
+        livresMontres = livresMontres.sample(100)
+        print('                   Liste des livres qui pourraient vous plaire\n               ===================================================\n')
+        for row in livresMontres.itertuples():
+            print('{} de {} ({}).     Note moyenne: {}/5'.format(str(row[5]),str(row[3]),int(row[4]),str(row[6])))
+            display(Image(url= str(row[7]), width=100, height=100))
